@@ -1,0 +1,29 @@
+{
+  "name": "react-pinia-store",
+  "version": "0.0.0",
+  "author": "1543057945@qq.com",
+  "description": "工具库",
+  "homepage": "",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "unbuild"
+  },
+  "devDependencies": {
+    "unbuild": "^0.7.6"
+  },
+  "dependencies": {
+    "react": "17.0.0"
+  }
+}

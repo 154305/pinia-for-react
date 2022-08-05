@@ -1,0 +1,8 @@
+node_modules
+dist
+/.history
+yarn.lock
+package.lock.json
+.idea
+.vscode
+
