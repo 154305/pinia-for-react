@@ -2,7 +2,7 @@
   "name": "react-pinia-store",
   "version": "0.0.0",
   "author": "1543057945@qq.com",
-  "description": "工具库",
+  "description": "react-pinia-store一个跟vue pinia类似的react状态管理",
   "homepage": "",
   "exports": {
     ".": {
