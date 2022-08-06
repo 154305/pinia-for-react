@@ -13,8 +13,15 @@ const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) =
     return v.toString(16);
 });
 
+//主要是为了防止外层解构导致this丢失
+const functionMapBindContext = (context: any, functionMap: Record<string, Function>) => {
+    const bindActionsFunctions = {} as Record<string, Function>
+    Object.entries(functionMap).map(([key, func]) => bindActionsFunctions[key] = (...args) => func.apply(context, args))
+    return bindActionsFunctions
+}
+
 //公共actions
-type CommonActions<Id extends string, S extends object> = {
+interface CommonActions<Id extends string, S extends object = {}> {
     $reset: () => void;
     $patch: (obj: Partial<S>) => void;
     $getState: (callback?: Function) => void;
@@ -22,16 +29,22 @@ type CommonActions<Id extends string, S extends object> = {
     $getId: () => Id;
 }
 
+type ActionContext<Id extends string, S extends object, A extends {}> = A & ThisType<CommonActions<Id, S> & A>
+
 interface DefineStoreOptions<Id extends string, S extends object = {}, A extends object = {}> {
     //store唯一id，必须是唯一，可以不传，不传的话就会是uuid
     id?: Id;
     //初始化状态树
     state: () => S;
     //actions
-    actions?: A & ThisType<A & CommonActions<Id, S>>;
+    actions?: ActionContext<Id, S, A>;
 }
 
-type DefineStoreReturn<Id extends string, S extends object = {}, A extends object = {}> = A & ThisType<A & CommonActions<Id, S>> & CommonActions<Id, S> & { useStore: () => [S, A & ThisType<A> & CommonActions<Id, S>] }
+type HookType<Id extends string, S extends object = {}, A extends object = {}> = CommonActions<Id, S> & ActionContext<Id, S, A> & {
+    useStore: () => [S, ActionContext<Id, S, A>]
+}
+
+type DefineStoreReturn<Id extends string, S extends object = {}, A extends object = {}> = { (): [S, CommonActions<Id, S> & ActionContext<Id, S, A>] } & HookType<Id, S, A>
 
 export function defineStore<Id extends string, S extends object = {}, A extends object = {}>(options: DefineStoreOptions<Id, S, A>): DefineStoreReturn<Id, S, A>;
 
@@ -71,7 +84,7 @@ export function defineStore(options) {
 
     //设置全量state
     const $setState = (value) => {
-        if (!value||typeof value != 'object'){
+        if (!value || typeof value != 'object') {
             return console.warn('[pinia-for-react]$setStoreState只能接受object类型')
         }
         //比较即将设置的值和已经缓存的值 相同不做处理
@@ -97,24 +110,30 @@ export function defineStore(options) {
         $getState,
         $setState,
         $getId,
-        ...(options?.actions || {})
+    }
+    //合并action
+    Object.assign(actions, functionMapBindContext(actions, options.actions || {}))
+
+    //hook回调
+    function useStore() {
+        const [_, setState] = useState(uuid());
+
+        const update = useCallback(() => setState(uuid()), []);
+
+        useEffect(() => () => {
+            CALLBACKS[id].delete(update)
+        }, [])
+
+        return [
+            $getState(update),
+            actions,
+        ]
     }
 
-    return {
+    Object.assign(useStore, {
         ...actions,
-        useStore() {
-            const [_, setState] = useState(uuid());
+        useStore
+    })
 
-            const update = useCallback(() => setState(uuid()), []);
-
-            useEffect(() => () => {
-                CALLBACKS[id].delete(update)
-            }, [])
-
-            return [
-                $getState(update),
-                actions,
-            ]
-        }
-    }
+    return useStore;
 }
