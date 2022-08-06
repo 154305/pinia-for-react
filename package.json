@@ -1,6 +1,6 @@
 {
   "name": "pinia-for-react",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "author": "1543057945@qq.com",
   "description": "react-pinia-store一个跟vue pinia类似的react状态管理",
   "homepage": "",
