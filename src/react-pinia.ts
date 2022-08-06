@@ -17,16 +17,16 @@ const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) =
 type CommonActions<Id extends string, S extends object> = {
     $reset: () => void;
     $patch: (obj: Partial<S>) => void;
-    $getStoreState: (callback?: Function) => void;
-    $setStoreState: (obj: S) => void;
-    $getStoreId: () => Id;
+    $getState: (callback?: Function) => void;
+    $setState: (obj: S) => void;
+    $getId: () => Id;
 }
 
 interface DefineStoreOptions<Id extends string, S extends object = {}, A extends object = {}> {
     //store唯一id，必须是唯一，可以不传，不传的话就会是uuid
-    storeId?: Id;
+    id?: Id;
     //初始化状态树
-    store: () => S;
+    state: () => S;
     //actions
     actions?: A & ThisType<A & CommonActions<Id, S>>;
 }
@@ -38,50 +38,53 @@ export function defineStore<Id extends string, S extends object = {}, A extends 
 export function defineStore(options) {
 
     //storeId唯一标识
-    const storeId = options.storeId || uuid();
+    const id = options.id || uuid();
 
     //重置
     const $reset = () => {
-        $setStoreState(options.store?.() || {})
+        $setState(options.state?.() || {})
     }
 
     //更改局部的值
     const $patch = (patchState: object) => {
         if (typeof patchState == "object" && Object.keys(patchState).length) {
-            $setStoreState({
-                ...$getStoreState(),
+            $setState({
+                ...$getState(),
                 ...patchState
             })
         }
     }
 
     //获取最新的state
-    const $getStoreState = (callback?: Function) => {
+    const $getState = (callback?: Function) => {
         //有回调则收集依赖
         if (callback) {
-            let set = CALLBACKS[storeId]
+            let set = CALLBACKS[id]
             if (!set) {
                 set = new Set();
-                CALLBACKS[storeId] = set;
+                CALLBACKS[id] = set;
             }
             set.add(callback)
         }
-        return STATE[storeId];
+        return STATE[id];
     }
 
     //设置全量state
-    const $setStoreState = (value) => {
-        //比较即将设置的值和已经缓存的值 相同不做处理
-        if (value === CALLBACKS[storeId]) {
-            return
+    const $setState = (value) => {
+        if (!value||typeof value != 'object'){
+            return console.warn('[pinia-for-react]$setStoreState只能接受object类型')
         }
-        STATE[storeId] = value;
-        CALLBACKS[storeId]?.forEach(func => func())
+        //比较即将设置的值和已经缓存的值 相同不做处理
+        if (value === CALLBACKS[id]) {
+            return;
+        }
+        STATE[id] = value;
+        CALLBACKS[id]?.forEach(func => func())
     }
 
     //获取storeId
-    const $getStoreId = () => {
-        return storeId;
+    const $getId = () => {
+        return id;
     }
 
     //初始化
@@ -91,9 +94,9 @@ export function defineStore(options) {
     const actions = {
         $reset,
         $patch,
-        $getStoreState,
-        $setStoreState,
-        $getStoreId,
+        $getState,
+        $setState,
+        $getId,
         ...(options?.actions || {})
     }
 
@@ -105,11 +108,11 @@ export function defineStore(options) {
             const update = useCallback(() => setState(uuid()), []);
 
             useEffect(() => () => {
-                CALLBACKS[storeId].delete(update)
+                CALLBACKS[id].delete(update)
             }, [])
 
             return [
-                $getStoreState(update),
+                $getState(update),
                 actions,
             ]
         }

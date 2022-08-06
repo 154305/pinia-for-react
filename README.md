@@ -11,10 +11,10 @@ yarn add pinia-for-react
 ## 2.Demo
 ```typescript jsx
 import {Button, Text, View} from "@tarojs/components";
-import {defineStore} from "react-pinia-store";
+import {defineStore} from "react-pinia-state";
 
 const userStore = defineStore({
-  store() {
+  state() {
     return {
       username: 'aaa',
       password: '1111',
@@ -23,7 +23,7 @@ const userStore = defineStore({
   },
   actions: {
     setUserInfo(userInfo) {
-      this.$setStoreState(userInfo)
+      this.$setState(userInfo)
     },
     reset() {
       this.$reset()
