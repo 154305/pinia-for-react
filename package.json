@@ -1,6 +1,6 @@
 {
   "name": "pinia-for-react",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "author": "1543057945@qq.com",
   "description": "react-pinia-store一个跟vue pinia类似的react状态管理",
   "homepage": "",
@@ -11,8 +11,11 @@
     "dist"
   ],
   "scripts": {
+    "install:examples": "cd examples/web & yarn & cd ../taro & yarn",
     "build": "tsup",
-    "ps": "node ./scripts/publish.ts"
+    "ps": "node ./scripts/publish.ts",
+    "start:web": "cd examples/web & npm run dev",
+    "start:taro": "cd examples/taro & npm run dev:weapp"
   },
   "dependencies": {
     "react": "^17.0.0"
