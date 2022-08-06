@@ -112,6 +112,7 @@ export function defineStore(options) {
         $getState,
         $setState,
         $getId,
+        $forceUpdate
     }
     //合并action
     Object.assign(actions, functionMapBindContext(actions, options.actions || {}))
