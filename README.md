@@ -1,6 +1,12 @@
 # react-pinia-store一个跟vue pinia类似的react状态管理 
 
-## 1.Demo
+## 1.Useage
+```
+npm i react-pinia-store 
+or
+yarn add react-pinia-store
+```
+## 2.Demo
 ```typescript jsx
 import {Button, Text, View} from "@tarojs/components";
 import {defineStore} from "react-pinia-store";

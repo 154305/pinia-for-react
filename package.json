@@ -1,29 +1,27 @@
 {
-  "name": "react-pinia-store",
-  "version": "0.0.0",
+  "name": "pinia-for-react",
+  "version": "0.0.11",
   "author": "1543057945@qq.com",
   "description": "react-pinia-store一个跟vue pinia类似的react状态管理",
   "homepage": "",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs"
-    }
-  },
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "unbuild"
-  },
-  "devDependencies": {
-    "unbuild": "^0.7.6"
+    "build": "tsup",
+    "ps": "node ./scripts/publish.ts"
   },
   "dependencies": {
-    "react": "17.0.0"
+    "react": "^17.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^6.2.1",
+    "unbuild": "^0.7.6"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0"
   }
 }
