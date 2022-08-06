@@ -117,3 +117,14 @@ export default () => {
 }
 
 ```
+## 3.运行示例
+#### 1.安装依赖
+`yarn & npm run install`
+#### 2.运行web或者taro
+`yarn run start:web` 
+or
+`yarn run start:taro` 
+
+
+
+
