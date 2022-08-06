@@ -1,10 +1,12 @@
-# react-pinia-store一个跟vue pinia类似的react状态管理 
-
+# pinia-for-react
+```
+一个跟vue pinia类似的react状态管理 
+```
 ## 1.Useage
 ```
-npm i react-pinia-store 
+npm i pinia-for-react
 or
-yarn add react-pinia-store
+yarn add pinia-for-react
 ```
 ## 2.Demo
 ```typescript jsx
