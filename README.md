@@ -3,8 +3,15 @@
 ```
 一个跟vue pinia类似的react状态管理 
 ```
-
-## 1.Useage
+## 1.特点
+```
+1.可以直接在组件外部修改状态（解决目前大多数状态库不能在外部使用的问题）
+2.状态分类管理(按模块拆分)
+3.天然异步支持
+4.开箱即用 无需provider根组件包裹
+5.友好的typescript提示
+```
+## 2.使用
 
 ```
 npm i pinia-for-react
@@ -12,7 +19,7 @@ or
 yarn add pinia-for-react
 ```
 
-## 2.Demo
+## 3.示例代码
 
 ```typescript jsx
 import {defineStore} from "pinia-for-react";
@@ -117,7 +124,7 @@ export default () => {
 }
 
 ```
-## 3.运行示例
+## 4.运行示例
 #### 1.安装依赖
 `yarn & npm run install`
 #### 2.运行web或者taro
