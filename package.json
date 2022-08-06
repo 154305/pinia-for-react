@@ -22,7 +22,8 @@
   },
   "devDependencies": {
     "tsup": "^6.2.1",
-    "unbuild": "^0.7.6"
+    "unbuild": "^0.7.6",
+    "@types/react": "^17.0.0"
   },
   "peerDependencies": {
     "react": "^17.0.0"

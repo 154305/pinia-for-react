@@ -6,6 +6,7 @@ import './index.css';
 
 const ComponentA = () => {
     const [{username}, {setUserInfo}] = useUserStore();
+    console.log('username',username)
     return (
         <Card>
             <div>

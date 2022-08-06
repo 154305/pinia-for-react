@@ -5,7 +5,7 @@ import {useCallback, useEffect, useState} from "react";
 const STATE = {};
 
 //缓存依赖收集回调
-const CALLBACKS = {} as Record<string, Set<Function>>
+const DEPS = {} as Record<string, Set<Function>>
 
 const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = Math.random() * 16 | 0,
@@ -27,6 +27,7 @@ interface CommonActions<Id extends string, S extends object = {}> {
     $getState: (callback?: Function) => void;
     $setState: (obj: S) => void;
     $getId: () => Id;
+    $forceUpdate: () => void;
 }
 
 type ActionContext<Id extends string, S extends object, A extends {}> = A & ThisType<CommonActions<Id, S> & A>
@@ -68,16 +69,17 @@ export function defineStore(options) {
         }
     }
 
+    //强制刷新
+    const $forceUpdate = () => {
+        DEPS[id]?.forEach(func => func());
+    }
+
     //获取最新的state
-    const $getState = (callback?: Function) => {
+    const $getState = (dep?: Function) => {
         //有回调则收集依赖
-        if (callback) {
-            let set = CALLBACKS[id]
-            if (!set) {
-                set = new Set();
-                CALLBACKS[id] = set;
-            }
-            set.add(callback)
+        if (dep) {
+            DEPS[id] = DEPS[id] || new Set();
+            DEPS[id].add(dep);
         }
         return STATE[id];
     }
@@ -88,11 +90,11 @@ export function defineStore(options) {
             return console.warn('[pinia-for-react]$setStoreState只能接受object类型')
         }
         //比较即将设置的值和已经缓存的值 相同不做处理
-        if (value === CALLBACKS[id]) {
+        if (value === STATE[id]) {
             return;
         }
         STATE[id] = value;
-        CALLBACKS[id]?.forEach(func => func())
+        $forceUpdate()
     }
 
     //获取storeId
@@ -116,16 +118,17 @@ export function defineStore(options) {
 
     //hook回调
     function useStore() {
-        const [_, setState] = useState(uuid());
 
-        const update = useCallback(() => setState(uuid()), []);
+        const [_, triggerUpdate] = useState(uuid());
+
+        const dep = useCallback(() => triggerUpdate(uuid()), []);
 
         useEffect(() => () => {
-            CALLBACKS[id].delete(update)
+            DEPS[id]?.delete(dep)
         }, [])
 
         return [
-            $getState(update),
+            $getState(dep),
             actions,
         ]
     }
