@@ -1,24 +1,9 @@
-//缓存全局State
 import {useCallback, useEffect, useState} from "react";
-
-//全局缓存state
-const STATE = {};
-
-//缓存依赖收集回调
-const DEPS = {} as Record<string, Set<Function>>
-
-const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = Math.random() * 16 | 0,
-        v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-});
-
-//主要是为了防止外层解构导致this丢失
-const functionMapBindContext = (context: any, functionMap: Record<string, Function>) => {
-    const bindActionsFunctions = {} as Record<string, Function>
-    Object.entries(functionMap).map(([key, func]) => bindActionsFunctions[key] = (...args) => func.apply(context, args))
-    return bindActionsFunctions
-}
+import {v4 as uuid} from "uuid"
+import {functionMapBindContext} from "./utils";
+import {DEPS, STATE} from "./cache";
+import observer from "./proxy";
+import {debounce} from "lodash-es";
 
 //公共actions
 interface CommonActions<Id extends string, S extends object = {}> {
@@ -30,9 +15,9 @@ interface CommonActions<Id extends string, S extends object = {}> {
     $forceUpdate: () => void;
 }
 
-type ActionContext<Id extends string, S extends object, A extends {}> = A & ThisType<CommonActions<Id, S> & A>
+type ActionContext<Id extends string, S extends object, A extends {}> = A & ThisType<CommonActions<Id, S> & A & { state: S }>
 
-interface DefineStoreOptions<Id extends string, S extends object = {}, A extends object = {}> {
+interface DefineProxyStoreOptions<Id extends string, S extends object = {}, A extends object = {}> {
     //store唯一id，必须是唯一，可以不传，不传的话就会是uuid
     id?: Id;
     //初始化状态树
@@ -45,18 +30,18 @@ type HookType<Id extends string, S extends object = {}, A extends object = {}> =
     useStore: () => [S, ActionContext<Id, S, A>]
 }
 
-type DefineStoreReturn<Id extends string, S extends object = {}, A extends object = {}> = { (): [S, CommonActions<Id, S> & ActionContext<Id, S, A>] } & HookType<Id, S, A>
+type DefineProxyStoreReturn<Id extends string, S extends object = {}, A extends object = {}> = { (): [S, CommonActions<Id, S> & ActionContext<Id, S, A>] } & HookType<Id, S, A> & { state: S }
 
-export function defineStore<Id extends string, S extends object = {}, A extends object = {}>(options: DefineStoreOptions<Id, S, A>): DefineStoreReturn<Id, S, A>;
+export function defineProxyStore<Id extends string, S extends object = {}, A extends object = {}>(options: DefineProxyStoreOptions<Id, S, A>): DefineProxyStoreReturn<Id, S, A>;
 
-export function defineStore(options) {
+export function defineProxyStore(options) {
 
     //storeId唯一标识
     const id = options.id || uuid();
 
     //重置
     const $reset = () => {
-        $setState(options.state?.() || {})
+        STATE[id] = observer(options.state?.() || {}, () => delayUpdate());
     }
 
     //更改局部的值
@@ -69,10 +54,11 @@ export function defineStore(options) {
         }
     }
 
+    //延迟更新
+    const delayUpdate = debounce(() => $forceUpdate(), 20)
+
     //强制刷新
-    const $forceUpdate = () => {
-        DEPS[id]?.forEach(func => func());
-    }
+    const $forceUpdate = debounce(() => DEPS[id]?.forEach(func => func()), 20)
 
     //获取最新的state
     const $getState = (dep?: Function) => {
@@ -93,7 +79,7 @@ export function defineStore(options) {
         if (value === STATE[id]) {
             return;
         }
-        STATE[id] = value;
+        STATE[id] = observer(value, () => delayUpdate());
         $forceUpdate()
     }
 
@@ -117,6 +103,17 @@ export function defineStore(options) {
     //合并action
     Object.assign(actions, functionMapBindContext(actions, options.actions || {}))
 
+    //在对象上映射state
+    const createStateProperty = (thisContext) => {
+        Object.defineProperty(thisContext, 'state', {
+            //防止覆盖state
+            set: () => console.log('不能覆盖根state变量'),
+            get: () => $getState()
+        })
+    }
+
+    createStateProperty(actions)
+
     //hook回调
     function useStore() {
 
@@ -138,6 +135,8 @@ export function defineStore(options) {
         ...actions,
         useStore
     })
+
+    createStateProperty(useStore)
 
     return useStore;
 }

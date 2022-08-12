@@ -1,5 +1,6 @@
-// import {defineStore} from "../../../../src/react-pinia";
-import {defineStore} from "pinia-for-react";
+// import {defineStore} from "pinia-for-react";
+
+import {defineStore} from "../../../../src/index";
 
 const useUserStore = defineStore({
   state() {

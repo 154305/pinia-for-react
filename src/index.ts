@@ -1,1 +1,2 @@
-export * from './react-pinia'
+export * from './defineStore'
+export * from './defineProxyStore'
