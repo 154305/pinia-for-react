@@ -80,7 +80,6 @@ export function defineProxyStore(options) {
             return;
         }
         STATE[id] = observer(value, () => delayUpdate());
-        $forceUpdate()
     }
 
     //获取storeId
