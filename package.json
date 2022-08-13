@@ -1,6 +1,6 @@
 {
   "name": "pinia-for-react",
-  "version": "0.0.17",
+  "version": "0.0.19",
   "author": "by zhizhuo <1543057945@qq.com> (https://github.com/154305)",
   "description": "react-pinia-store一个跟vue pinia类似的react状态管理",
   "keywords": "pinia,store,react,pinia-for-react",

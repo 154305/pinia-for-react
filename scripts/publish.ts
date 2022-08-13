@@ -20,6 +20,7 @@ updateVersion()
 
 //发布
 try {
+    execSync("npm run build")
     execSync('npm publish --registry=https://registry.npmjs.org/');
     console.log('发布成功')
 } catch (e) {
