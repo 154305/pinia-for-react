@@ -1,6 +1,5 @@
 import {useCallback, useEffect, useState} from "react";
-import {v4 as uuid} from "uuid"
-import {functionMapBindContext} from "./utils";
+import {functionMapBindContext, uuid} from "./utils";
 import {DEPS, STATE} from "./cache";
 import {debounce} from "lodash-es";
 
