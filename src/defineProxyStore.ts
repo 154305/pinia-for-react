@@ -40,21 +40,16 @@ export function defineProxyStore(options) {
 
     //重置
     const $reset = () => {
-        STATE[id] = observer(options.state?.() || {}, () => delayUpdate());
+        STATE[id] = observer(options.state?.() || {}, () => $forceUpdate());
     }
 
     //更改局部的值
     const $patch = (patchState: object) => {
         if (typeof patchState == "object" && Object.keys(patchState).length) {
-            $setState({
-                ...$getState(),
-                ...patchState
-            })
+            Object.assign(STATE[id], {...patchState});
+            $forceUpdate();
         }
     }
-
-    //延迟更新
-    const delayUpdate = debounce(() => $forceUpdate(), 20)
 
     //强制刷新
     const $forceUpdate = debounce(() => DEPS[id]?.forEach(func => func()), 20)
@@ -78,7 +73,8 @@ export function defineProxyStore(options) {
         if (value === STATE[id]) {
             return;
         }
-        STATE[id] = observer(value, () => delayUpdate());
+        STATE[id] = observer(value, $forceUpdate);
+        $forceUpdate()
     }
 
     //获取storeId
