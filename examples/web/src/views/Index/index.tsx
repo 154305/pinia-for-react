@@ -89,6 +89,7 @@ export default () => {
                     </Button>
                     <Button type="primary" onClick={() => navigate('/home')}>跳转到Home页面</Button>
                     <Button type="primary" onClick={() => navigate('/proxyStore')}>跳转到ProxyStore页面</Button>
+                    <Button type="primary" onClick={() => navigate('/indexLocalProxyStore')}>跳转到本地ProxyStore页面</Button>
                 </Space>
             </Space>
         </div>

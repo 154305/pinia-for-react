@@ -11,6 +11,7 @@ interface CommonActions<Id extends string, S extends object = {}> {
     $setState: (obj: S) => void;
     $getId: () => Id;
     $forceUpdate: () => void;
+    $destroy: () => void;
 }
 
 type ActionContext<Id extends string, S extends object, A extends {}> = A & ThisType<CommonActions<Id, S> & A>

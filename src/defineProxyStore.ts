@@ -12,6 +12,7 @@ interface CommonActions<Id extends string, S extends object = {}> {
     $setState: (obj: S) => void;
     $getId: () => Id;
     $forceUpdate: () => void;
+    $destroy: () => void;
 }
 
 type ActionContext<Id extends string, S extends object, A extends {}> = A & ThisType<CommonActions<Id, S> & A & { state: S }>
@@ -82,6 +83,13 @@ export function defineProxyStore(options) {
         return id;
     }
 
+    //销毁撞他
+    const $destroy = () => {
+        console.log(Object.keys(STATE))
+        delete STATE[$getId()];
+        console.log(Object.keys(STATE))
+    }
+
     //初始化
     $reset()
 
@@ -92,6 +100,7 @@ export function defineProxyStore(options) {
         $getState,
         $setState,
         $getId,
+        $destroy,
         $forceUpdate
     }
     //合并action
