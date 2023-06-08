@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "lodash-es": "^4.17.21",
-    "react": "^17.0.0"
+    "react": "^17.0.0",
+    "@vue/reactivity": "^3.3.4"
   },
   "devDependencies": {
     "@types/react": "^17.0.0",
